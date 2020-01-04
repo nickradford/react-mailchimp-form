@@ -147,6 +147,8 @@
       value: function sendData(url) {
         var _this3 = this;
 
+        var callbacks = this.props.callbacks;
+
         this.setState({ status: "sending" });
         (0, _jsonp2.default)(url, { param: "c" }, function (err, data) {
           if (data.msg.includes("already subscribed")) {
@@ -157,6 +159,7 @@
             _this3.setState({ status: "error" });
           } else {
             _this3.setState({ status: "success" });
+            callbacks.success && typeof callbacks.success === "function" ? callbacks.success() : null;
           }
         });
       }
@@ -174,6 +177,7 @@
         var messages = _extends({}, Mailchimp.defaultProps.messages, this.props.messages);
         var status = this.state.status;
 
+        var disabled = status === "sending" ? true : false;
         return _react2.default.createElement(
           "form",
           { onSubmit: this.handleSubmit.bind(this), className: className },
@@ -185,7 +189,8 @@
                 return _this4.setState(_defineProperty({}, input.name, target.value));
               },
               defaultValue: _this4.state[input.name],
-              value: _this4.state[input.name]
+              value: _this4.state[input.name],
+              disabled: disabled
             }));
           }),
           _react2.default.createElement(

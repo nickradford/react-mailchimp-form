@@ -23,6 +23,7 @@ class Mailchimp extends React.Component {
   }
 
   sendData(url) {
+    const { callbacks } = this.props;
     this.setState({ status: "sending" });
     jsonp(url, { param: "c" }, (err, data) => {
       if (data.msg.includes("already subscribed")) {
@@ -33,6 +34,9 @@ class Mailchimp extends React.Component {
         this.setState({ status: "error" });
       } else {
         this.setState({ status: "success" });
+        callbacks.success && typeof callbacks.success === "function"
+          ? callbacks.success()
+          : null;
       }
     });
   }
@@ -44,6 +48,7 @@ class Mailchimp extends React.Component {
       ...this.props.messages
     };
     const { status } = this.state;
+    const disabled = status === "sending" ? true : false;
     return (
       <form onSubmit={this.handleSubmit.bind(this)} className={className}>
         {fields.map(input => (
@@ -55,6 +60,7 @@ class Mailchimp extends React.Component {
             }
             defaultValue={this.state[input.name]}
             value={this.state[input.name]}
+            disabled={disabled}
           />
         ))}
         <button
